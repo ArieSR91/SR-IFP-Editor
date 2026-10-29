@@ -37,6 +37,7 @@ Requirements
 Clone the repository:
 
 ```git clone https://github.com/ArieSR91/SR-IFP-Editor.git```
+
 ```cd SR-IFP-Editor```
 
 Build the debug APK:
