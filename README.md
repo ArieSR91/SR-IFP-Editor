@@ -72,4 +72,5 @@ All trademarks and website content belong to their respective owners.
 
 ## License
 
+This project is open source.
 See the [LICENSE](LICENSE) file for details.
