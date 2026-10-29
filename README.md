@@ -51,10 +51,9 @@ gradle assembleDebug
 ```
 
 After a successful build, the APK will normally be located at: 
-
 app/build/outputs/apk/debug/app-debug.apk
 
-How It Works
+## How It Works
 
 SR IFP Editor uses Android WebView to display the web-based IFP Editor. When the editor exports a file using a Blob URL, the application reads the generated data and passes it to the Android native layer.
 
