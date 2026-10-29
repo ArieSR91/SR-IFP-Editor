@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTA SA IFP Animation Editor - Manage, Create & Edit Animations Online | GTA Stuff</title>
+    <meta name="description" content="Free online GTA San Andreas IFP editor and animation creator. Manage IFP files (rename, merge, import, export) or create and edit animations with a 3D timeline, bone rotation gizmo, and keyframe editing. No 3ds Max needed.">
+    <meta name="keywords" content="GTA SA animation editor, IFP editor, IFP manager, edit IFP file, GTA San Andreas animation creator, create GTA animations, edit IFP files, keyframe editor, bone animation editor, GTA animation tool, ANP3 editor, ANPK editor, IFP animation maker, SA-MP animations, MTA animations, custom animations GTA, ped.ifp editor, walk cycle editor, combat animation editor, GTA modding tools, free animation editor, online animation editor, 3D animation editor, GTA Anim Manager replacement, animation timeline, bone rotation, create IFP, edit keyframes, GTA SA mod tools, animation creator online, free IFP editor, IFP merge tool, rename animation, delete animation, import IFP, export IFP, animation file manager">
+    <meta name="author" content="Dryxio">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://gtastuff.com/tools/ifp-editor/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gtastuff.com/tools/ifp-editor/">
+    <meta property="og:title" content="GTA SA Animation Editor - Create & Edit IFP Animations Online">
+    <meta property="og:description" content="Free browser-based animation editor for GTA San Andreas. Visual timeline, 3D bone posing with rotation gizmo, keyframe editing, undo/redo, and IFP export. No 3ds Max or downloads needed.">
+    <meta property="og:image" content="https://gtastuff.com/og-image.png">
+    <meta property="og:site_name" content="GTA Stuff">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://gtastuff.com/tools/ifp-editor/">
+    <meta name="twitter:title" content="GTA SA Animation Editor - Create & Edit IFP Animations Online">
+    <meta name="twitter:description" content="Free browser-based animation editor for GTA San Andreas. Visual timeline, 3D bone posing, keyframe editing, and IFP export. No 3ds Max needed.">
+    <meta name="twitter:image" content="https://gtastuff.com/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"GTA SA Animation Editor","description":"Free online animation editor for GTA San Andreas. Create and edit IFP animations with a visual timeline, 3D bone rotation gizmo, keyframe editing, undo/redo, copy/paste, and ANP3 export. Works with SA-MP, MTA, and vanilla GTA SA. No 3ds Max or downloads required.","url":"https://gtastuff.com/tools/ifp-editor/","applicationCategory":"GameApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Timeline editor, 3D bone posing, Keyframe editing, Undo/Redo, Copy/Paste keyframes, IFP import/export, Animation merge, ANP3/ANPK support"}
+    </script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="sidebar">
+            <a href="/" class="site-logo"><img src="/gtastuff.png" alt="GTA Stuff"></a>
+            <h1>IFP Animation Editor</h1>
+            <p class="subtitle">Manage, create & edit GTA SA animations</p>
+
+            <div id="drop-zone" class="drop-zone">
+                <div class="drop-zone-content">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <p>Drop <strong>.ifp</strong>, <strong>.dff</strong> & <strong>.txd</strong></p>
+                    <span class="hint">or click to browse</span>
+                </div>
+                <input type="file" id="file-input" multiple accept=".ifp,.anpk,.dff,.txd">
+            </div>
+
+            <div class="file-list">
+                <h3>Loaded Files</h3>
+                <div class="file-item"><span class="file-label">IFP:</span><span id="ifp-file" class="file-name">-</span></div>
+                <div class="file-item"><span class="file-label">Model:</span><span id="dff-file" class="file-name">-</span></div>
+                <div class="file-item"><span class="file-label">Texture:</span><span id="txd-file" class="file-name">-</span></div>
+            </div>
+
+            <div class="toolbar">
+                <button id="btn-new-anim" class="btn secondary" title="Create a new blank animation">+ New Animation</button>
+                <button id="btn-import" class="btn primary" disabled title="Import animations from another IFP file">Import from IFP</button>
+                <button id="btn-export" class="btn primary" disabled title="Export all animations as ANP3 IFP">Export IFP</button>
+            </div>
+            <button id="btn-import-mocap" class="btn-mocap-link" title="Import animation from motion capture data (CSV)">Import from Motion Capture</button>
+
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search animations..." autocomplete="off">
+            </div>
+
+            <div class="anim-panel">
+                <h3>Animations <span id="anim-count"></span></h3>
+                <ul id="anim-items"></ul>
+            </div>
+
+            <div class="anim-actions">
+                <button id="btn-rename" class="btn-icon" disabled title="Rename (F2)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                    Rename
+                </button>
+                <button id="btn-duplicate" class="btn-icon" disabled title="Duplicate (Ctrl+D)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Duplicate
+                </button>
+                <button id="btn-move-up" class="btn-icon" disabled title="Move Up">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+                </button>
+                <button id="btn-move-down" class="btn-icon" disabled title="Move Down">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <button id="btn-replace" class="btn-icon" disabled title="Replace with animation from another IFP">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                    Replace
+                </button>
+                <button id="btn-delete" class="btn-icon danger" disabled title="Delete (Del)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    Delete
+                </button>
+            </div>
+
+            <div id="anim-info" class="anim-info" style="display:none;">
+                <h3>Selected Animation</h3>
+                <div class="info-row"><span class="info-label">Name:</span><input type="text" id="info-name" maxlength="24" spellcheck="false"></div>
+                <div class="info-row"><span class="info-label">Bones:</span><span id="info-bones">-</span></div>
+                <div class="info-row"><span class="info-label">Keyframes:</span><span id="info-keyframes">-</span></div>
+                <div class="info-row"><span class="info-label">Duration:</span><span id="info-duration">-</span></div>
+                <div class="info-row"><span class="info-label">Format:</span><span id="info-format">-</span></div>
+                <button id="btn-export-single" class="btn secondary btn-sm" disabled>Export This Animation</button>
+                <button id="btn-open-editor" class="btn accent btn-sm" disabled title="Open keyframe editor for this animation">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                    Edit Keyframes
+                </button>
+            </div>
+
+            <div id="ik-panel" class="ik-panel" style="display:none;">
+                <h3>Control Rig (IK)</h3>
+                <div class="ik-chains" id="ik-chains"></div>
+                <div class="ik-hint">Click a target to drag. Pole controls bend direction.</div>
+            </div>
+
+            <div id="keyframe-props" class="keyframe-props" style="display:none;">
+                <h3>Keyframe</h3>
+                <div class="info-row">
+                    <span class="info-label">Time:</span>
+                    <input type="number" id="kf-time" step="0.01" min="0" class="kf-input">
+                </div>
+                <div class="kf-group">
+                    <span class="kf-group-label">Rotation (deg)</span>
+                    <div class="kf-row">
+                        <label>X <input type="number" id="kf-rot-x" step="0.5" class="kf-input"></label>
+                        <label>Y <input type="number" id="kf-rot-y" step="0.5" class="kf-input"></label>
+                        <label>Z <input type="number" id="kf-rot-z" step="0.5" class="kf-input"></label>
+                    </div>
+                </div>
+                <div id="kf-pos-group" class="kf-group" style="display:none;">
+                    <span class="kf-group-label">Position</span>
+                    <div class="kf-row">
+                        <label>X <input type="number" id="kf-pos-x" step="0.01" class="kf-input"></label>
+                        <label>Y <input type="number" id="kf-pos-y" step="0.01" class="kf-input"></label>
+                        <label>Z <input type="number" id="kf-pos-z" step="0.01" class="kf-input"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="controls" class="section">
+                <h3>Playback</h3>
+                <div class="current-anim">Playing: <span id="current-anim">-</span></div>
+                <div class="playback-controls">
+                    <button id="play-pause" class="btn">Pause</button>
+                </div>
+                <div class="control-group">
+                    <label>Speed</label>
+                    <input type="range" id="anim-speed" min="0.1" max="2" value="1" step="0.1">
+                    <span id="speed-val">1.0x</span>
+                </div>
+
+                <h3>View</h3>
+                <div class="control-group">
+                    <label><input type="checkbox" id="grid-toggle" checked> Show Grid</label>
+                </div>
+                <div class="control-group">
+                    <label>Background</label>
+                    <input type="color" id="bg-color" value="#1a1a2e">
+                </div>
+                <button id="reset-camera" class="btn secondary">Reset Camera</button>
+
+                <h3>Weapon</h3>
+                <div class="control-group">
+                    <select id="weapon-select" class="weapon-select">
+                        <option value="">None</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label class="weapon-custom-btn">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Upload Custom Weapon
+                        <input type="file" id="weapon-custom-input" multiple accept=".dff,.txd" style="display:none;">
+                    </label>
+                </div>
+                <div id="weapon-group-info" class="weapon-group-info" style="display:none;">
+                    <span class="info-label">Anim Group:</span>
+                    <span id="weapon-group-name" class="weapon-group-tag">-</span>
+                </div>
+                <div id="weapon-parent-group" class="control-group" style="display:none;">
+                    <label>Parent Weapon Class</label>
+                    <select id="weapon-parent-select" class="weapon-select">
+                        <option value="">-- Select base weapon --</option>
+                        <optgroup label="Pistols">
+                            <option value="colt45">Pistol (colt45)</option>
+                            <option value="silenced">Silenced (silenced)</option>
+                            <option value="python">Desert Eagle (python)</option>
+                        </optgroup>
+                        <optgroup label="Shotguns">
+                            <option value="shotgun">Shotgun (shotgun)</option>
+                            <option value="sawnoff">Sawn-Off (sawnoff)</option>
+                            <option value="buddy">SPAS-12 (buddy)</option>
+                        </optgroup>
+                        <optgroup label="Sub-Machine Guns">
+                            <option value="uzi">MP5 / Uzi (uzi)</option>
+                        </optgroup>
+                        <optgroup label="Assault Rifles">
+                            <option value="rifle">AK-47 / M4 (rifle)</option>
+                        </optgroup>
+                        <optgroup label="Rifles">
+                            <option value="sniper">Sniper (sniper)</option>
+                        </optgroup>
+                        <optgroup label="Heavy">
+                            <option value="rocket">Rocket Launcher (rocket)</option>
+                            <option value="flame">Flamethrower / Minigun (flame)</option>
+                        </optgroup>
+                        <optgroup label="Thrown">
+                            <option value="grenade">Grenade / Molotov (grenade)</option>
+                        </optgroup>
+                        <optgroup label="Melee">
+                            <option value="BBALLBAT">Bat / Club (BBALLBAT)</option>
+                            <option value="KNIFE">Knife (KNIFE)</option>
+                            <option value="SWORD">Katana / Sword (SWORD)</option>
+                            <option value="CHAINSAW">Chainsaw (CHAINSAW)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div id="weapon-offsets" class="weapon-offsets">
+                    <div class="weapon-offset-group">
+                        <span class="kf-group-label">Position Offset</span>
+                        <div class="kf-row">
+                            <label>X <input type="number" id="weapon-off-x" step="0.01" value="0" class="kf-input"></label>
+                            <label>Y <input type="number" id="weapon-off-y" step="0.01" value="0" class="kf-input"></label>
+                            <label>Z <input type="number" id="weapon-off-z" step="0.01" value="0" class="kf-input"></label>
+                        </div>
+                    </div>
+                    <div class="weapon-offset-group">
+                        <span class="kf-group-label">Rotation Offset (deg)</span>
+                        <div class="kf-row">
+                            <label>X <input type="number" id="weapon-rot-x" step="5" value="0" class="kf-input"></label>
+                            <label>Y <input type="number" id="weapon-rot-y" step="5" value="0" class="kf-input"></label>
+                            <label>Z <input type="number" id="weapon-rot-z" step="5" value="0" class="kf-input"></label>
+                        </div>
+                    </div>
+                    <button id="weapon-reset-offset" class="btn-link" style="margin-top:4px;">Reset Offsets</button>
+                </div>
+            </div>
+
+            <div class="export-section section">
+                <h3>Export</h3>
+                <div class="control-group">
+                    <label>Game Target</label>
+                    <select id="export-format" class="weapon-select">
+                        <option value="ANP3">San Andreas (ANP3)</option>
+                        <option value="ANPK_III">GTA III (ANPK · max 250)</option>
+                        <option value="ANPK_VC">Vice City (ANPK · max 450)</option>
+                    </select>
+                    <span id="export-target-note" class="export-target-note">ANP3 for GTA San Andreas.</span>
+                </div>
+                <div class="control-group">
+                    <label>Collection Name</label>
+                    <input type="text" id="collection-name" maxlength="24" spellcheck="false" placeholder="ped">
+                </div>
+                <button id="btn-export-all" class="btn primary" disabled>Export IFP</button>
+            </div>
+
+            <div class="credits">
+                By <a href="https://github.com/dryxio" target="_blank" class="author">Dryxio</a><br>
+                Thanks to <a href="https://github.com/aap/rwtools" target="_blank">aap/rwtools</a> & <a href="https://github.com/andrewixz/DFFLoader" target="_blank">andrewixz/DFFLoader</a>
+            </div>
+        </div>
+
+        <div id="main-area">
+            <div id="viewport">
+                <canvas id="canvas"></canvas>
+                <div id="loading-overlay" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Loading...</p>
+                </div>
+                <div id="edit-mode-badge" class="edit-mode-badge" style="display:none;">EDIT MODE</div>
+                <div id="bone-tooltip" class="bone-tooltip" style="display:none;"></div>
+                <div id="stats">
+                    <span id="vertices-count">Verts: 0</span>
+                    <span id="triangles-count">Tris: 0</span>
+                </div>
+            </div>
+
+            <div id="timeline-panel" class="timeline-panel">
+                <div class="tl-toolbar">
+                    <button id="tl-add-kf" class="btn-icon tl-btn" title="Add Keyframe (K)" disabled>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Key
+                    </button>
+                    <button id="tl-del-kf" class="btn-icon tl-btn" title="Delete selected keyframes (Del)" disabled>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Del
+                    </button>
+                    <button id="tl-dup-kf" class="btn-icon tl-btn" title="Duplicate selected keyframes (Ctrl+Shift+D)" disabled>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="1"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/></svg>
+                        Dup
+                    </button>
+                    <button id="tl-rev-kf" class="btn-icon tl-btn" title="Reverse selected keyframes (R)" disabled>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 4 3 8 7 12"/><polyline points="17 20 21 16 17 12"/><line x1="3" y1="8" x2="21" y2="8"/><line x1="21" y1="16" x2="3" y2="16"/></svg>
+                        Rev
+                    </button>
+                    <span class="tl-separator"></span>
+                    <span id="tl-time-display" class="tl-time">0.000s</span>
+                    <span class="tl-separator"></span>
+                    <button id="tl-validation" class="tl-validation ready" title="GTA compatibility details">
+                        <span class="tl-validation-dot"></span>
+                        <span id="tl-validation-label">GTA Ready</span>
+                    </button>
+                    <label class="tl-zoom-label">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                        <input type="range" id="tl-zoom" min="50" max="2000" value="200" step="10">
+                    </label>
+                    <button id="tl-help" class="btn-icon tl-btn tl-help-btn" title="Shortcuts (?)">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </button>
+                    <button id="tl-close" class="btn-icon tl-btn tl-close-btn" title="Close Editor">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div id="tl-validation-popover" class="tl-validation-popover" hidden>
+                    <div class="tl-shortcuts-header">
+                        <span>GTA compatibility</span>
+                        <button id="tl-validation-close" class="tl-shortcuts-x" title="Close">&times;</button>
+                    </div>
+                    <p id="tl-validation-summary" class="tl-validation-summary">Ready to export.</p>
+                    <ul id="tl-validation-list" class="tl-validation-list"></ul>
+                    <button id="tl-validation-fix" class="btn secondary btn-sm" hidden>Fix safe issues</button>
+                </div>
+                <div id="tl-shortcuts-popover" class="tl-shortcuts-popover" hidden>
+                    <div class="tl-shortcuts-header">
+                        <span>Timeline shortcuts</span>
+                        <button id="tl-shortcuts-close" class="tl-shortcuts-x" title="Close">&times;</button>
+                    </div>
+                    <div class="tl-shortcuts-grid">
+                        <div class="tl-shortcuts-section">Keyframes</div>
+                        <div><kbd>K</kbd></div><div>Add keyframe at playhead</div>
+                        <div><kbd>Del</kbd></div><div>Delete selected keyframes</div>
+                        <div><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd></div><div>Duplicate selected</div>
+                        <div><kbd>R</kbd></div><div>Reverse selected (end ↔ start)</div>
+                        <div><kbd>Ctrl</kbd>+<kbd>A</kbd></div><div>Select all keyframes</div>
+                        <div><kbd>Drag</kbd></div><div>Move one keyframe — or the whole selection if multiple are selected</div>
+                        <div class="tl-shortcuts-section">Selection</div>
+                        <div><kbd>Click</kbd></div><div>Select keyframe</div>
+                        <div><kbd>Shift</kbd>+<kbd>Click</kbd></div><div>Add to selection</div>
+                        <div><kbd>Ctrl</kbd>+<kbd>Click</kbd></div><div>Toggle selection</div>
+                        <div><kbd>Drag</kbd> empty area</div><div>Box-select</div>
+                        <div class="tl-shortcuts-section">Edit</div>
+                        <div><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>V</kbd></div><div>Copy / paste keyframes</div>
+                        <div><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></div><div>Undo / redo</div>
+                        <div class="tl-shortcuts-section">Playback</div>
+                        <div><kbd>Space</kbd></div><div>Play / pause</div>
+                        <div><kbd>E</kbd></div><div>Toggle edit mode</div>
+                        <div><kbd>←</kbd> / <kbd>→</kbd></div><div>Jump between keyframes</div>
+                    </div>
+                </div>
+                <div class="tl-body">
+                    <div id="tl-canvas-container" class="tl-canvas-container">
+                        <canvas id="tl-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Context Menu -->
+        <div id="context-menu" class="context-menu" style="display:none;">
+            <button data-action="rename">Rename</button>
+            <button data-action="duplicate">Duplicate</button>
+            <button data-action="replace">Replace from IFP...</button>
+            <button data-action="move-up">Move Up</button>
+            <button data-action="move-down">Move Down</button>
+            <button data-action="export-single">Export Animation</button>
+            <hr>
+            <button data-action="delete" class="danger">Delete</button>
+        </div>
+
+        <!-- MoCap Import Modal -->
+        <div id="mocap-modal" class="modal-overlay" style="display:none;">
+            <div class="modal modal-mocap">
+                <h2>Import Motion Capture</h2>
+                <p class="modal-desc">Upload a video (max 15s) or a CSV/JSON mocap file to create a GTA SA animation. MediaPipe data uses the explicit <strong>X lateral / Y up / Z forward</strong> skeleton profile.</p>
+
+                <div class="mocap-form">
+                    <div class="mocap-field">
+                        <label>Video or MoCap File</label>
+                        <div class="mocap-file-row">
+                            <button id="mocap-pick-file" class="btn secondary">Choose File</button>
+                            <span id="mocap-file-name" class="mocap-file-label">No file selected</span>
+                            <input type="file" id="mocap-file-input" accept=".mp4,.mov,.webm,.csv,.json" style="display:none">
+                        </div>
+                        <span class="mocap-file-hint">Supports .mp4, .mov, .webm, .csv, .json</span>
+                    </div>
+
+                    <div class="mocap-field">
+                        <label for="mocap-anim-name">Animation Name</label>
+                        <input type="text" id="mocap-anim-name" value="mocap" maxlength="24" autocomplete="off">
+                    </div>
+
+                    <div class="mocap-row" id="mocap-fps-row">
+                        <div class="mocap-field">
+                            <label for="mocap-fps">Source FPS</label>
+                            <input type="number" id="mocap-fps" value="" placeholder="Auto from timestamps" min="1" max="240" step="0.001">
+                        </div>
+                        <div class="mocap-field">
+                            <label for="mocap-smoothing">Smoothing</label>
+                            <input type="number" id="mocap-smoothing" value="2" min="0" max="10" step="1">
+                        </div>
+                    </div>
+
+                    <div class="mocap-row">
+                        <div class="mocap-field">
+                            <label for="mocap-min-confidence">Min confidence</label>
+                            <input type="number" id="mocap-min-confidence" value="0.35" min="0" max="1" step="0.05">
+                        </div>
+                        <div class="mocap-field">
+                            <label for="mocap-max-gap">Max interpolated gap (s)</label>
+                            <input type="number" id="mocap-max-gap" value="0.25" min="0" max="2" step="0.05">
+                        </div>
+                    </div>
+
+                    <div class="mocap-field mocap-check">
+                        <label title="MediaPipe world landmarks are hip-centred; this captures body sway/tracker drift, not global locomotion. Output axes: GTA X lateral / Y forward / Z up."><input type="checkbox" id="mocap-root-motion"> Experimental hip-centred root translation</label>
+                        <span class="mocap-file-hint">Off by default: secondary-task exports omit bone ID 0 so GTA keeps the ped upright. Enabling this adds an upright Root sequence for translation.</span>
+                    </div>
+
+                    <div class="mocap-field mocap-check">
+                        <label><input type="checkbox" id="mocap-upper-body-only"> Upper body only (keep legs in bind pose)</label>
+                    </div>
+                </div>
+
+                <div id="mocap-progress" class="mocap-progress" style="display:none;">
+                    <div class="mocap-progress-bar"><div id="mocap-progress-fill" class="mocap-progress-fill"></div></div>
+                    <span id="mocap-progress-text" class="mocap-progress-text"></span>
+                </div>
+
+                <div id="mocap-status" class="mocap-status" style="display:none;"></div>
+
+                <div class="modal-actions">
+                    <button id="mocap-confirm" class="btn primary" disabled>Import</button>
+                    <button id="mocap-cancel" class="btn secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Import Modal -->
+        <div id="import-modal" class="modal-overlay" style="display:none;">
+            <div class="modal">
+                <h2 id="import-title">Import Animations</h2>
+                <p id="import-subtitle" class="import-subtitle" style="display:none;"></p>
+                <p id="import-info"></p>
+                <div id="import-warnings" class="import-warnings" style="display:none;"></div>
+                <div class="modal-actions-top">
+                    <button id="import-select-all" class="btn-link">Select All</button>
+                    <button id="import-deselect-all" class="btn-link">Deselect All</button>
+                </div>
+                <ul id="import-list" class="import-list"></ul>
+                <div class="modal-actions">
+                    <button id="import-confirm" class="btn primary" disabled>Import 0 Selected</button>
+                    <button id="import-cancel" class="btn secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Warnings Modal -->
+        <div id="warnings-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="warnings-title" aria-describedby="warnings-summary">
+            <div class="modal modal-sm export-dialog">
+                <h2 id="warnings-title">Export Warnings</h2>
+                <p id="warnings-summary" class="warnings-summary"></p>
+                <ul id="warnings-list" class="warnings-list"></ul>
+                <div class="modal-actions">
+                    <button id="warnings-proceed" class="btn primary">Export Anyway</button>
+                    <button id="warnings-cancel" class="btn secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="js/main.js"></script>
+    <script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.ariesr91.ifpeditor'
+    compileSdk 35
+    defaultConfig { applicationId 'com.ariesr91.ifpeditor'; minSdk 23; targetSdk 35; versionCode 1; versionName '1.0' }
+}
