@@ -12,7 +12,7 @@ An Android application for accessing the IFP Editor directly from your Android d
 
 ## Screenshots
 
-![SR IFP Editor](screenshots/editor.png)
+![SR IFP Editor](screenshots/editor.jpg)
 
 ## Download
 
@@ -23,12 +23,10 @@ Download the latest APK from the repository's Releases section.
 3. Download the latest APK.
 4. Install it on your Android device.
 
-«If Android blocks the installation, check the system settings for permission to install apps from your chosen source.»
+If Android blocks the installation, check the system settings for permission to install apps from your chosen source.
 
 ## Build from Source
-
 Requirements
-
 - Java Development Kit (JDK)
 - Gradle compatible with the project's Android Gradle Plugin
 - Android SDK
@@ -38,12 +36,12 @@ Requirements
 
 Clone the repository:
 
-git clone https://github.com/ArieSR91/SR-IFP-Editor.git
-cd SR-IFP-Editor
+```git clone https://github.com/ArieSR91/SR-IFP-Editor.git```
+```cd SR-IFP-Editor```
 
 Build the debug APK:
 
-gradle assembleDebug
+```gradle assembleDebug```
 
 After a successful build, the APK will normally be located at:
 
@@ -57,7 +55,7 @@ Android's "ACTION_CREATE_DOCUMENT" interface then allows the user to select a de
 
 This approach makes it possible to save exported IFP files without relying on WebView's standard download handler for Blob URLs.
 
-Project Structure
+## Project Structure
 
 .
 ├── app/
