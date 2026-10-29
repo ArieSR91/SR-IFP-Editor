@@ -58,29 +58,6 @@ How It Works
 
 SR IFP Editor uses Android WebView to display the web-based IFP Editor. When the editor exports a file using a Blob URL, the application reads the generated data and passes it to the Android native layer.
 
-Android's "ACTION_CREATE_DOCUMENT" interface then allows the user to select a destination and filename before the exported file is written.
-
-This approach makes it possible to save exported IFP files without relying on WebView's standard download handler for Blob URLs.
-
-## Project Structure
-
-.
-├── app/
-│   ├── build.gradle
-│   └── src/
-│       └── main/
-│           ├── AndroidManifest.xml
-│           ├── java/
-│           │   └── com/ariesr91/ifpeditor/
-│           │       └── MainActivity.java
-│           └── res/
-│               ├── drawable/
-│               └── values/
-├── build.gradle
-├── gradle.properties
-├── settings.gradle
-└── page.html
-
 ## Important Notes
 
 - The application relies on the web-based IFP Editor hosted by GTastuff.
