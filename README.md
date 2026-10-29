@@ -50,7 +50,7 @@ Build the debug APK:
 gradle assembleDebug
 ```
 
-After a successful build, the APK will normally be located at:
+After a successful build, the APK will normally be located at: 
 
 app/build/outputs/apk/debug/app-debug.apk
 
@@ -60,14 +60,14 @@ SR IFP Editor uses Android WebView to display the web-based IFP Editor. When the
 
 ## Important Notes
 
-- The application relies on the web-based IFP Editor hosted by GTastuff.
+- The application relies on the web-based IFP Editor hosted by gtastuff.
 - An internet connection is required to access the hosted editor.
 - This repository contains the Android wrapper and its project files; it does not contain the complete source code or backend of the original GTastuff website.
 - Exported files are saved to the destination selected by the user through Android's file picker.
 
 ## Disclaimer
 
-SR IFP Editor is an independent Android wrapper project. It is not an official GTastuff application unless explicitly stated by the respective owners.
+SR IFP Editor is an independent Android wrapper project. It is not an official gtastuff application unless explicitly stated by the respective owners.
 
 All trademarks and website content belong to their respective owners.
 
